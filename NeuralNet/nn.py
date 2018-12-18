@@ -2,6 +2,8 @@ import seaborn as sns
 import numpy as np
 import h5py 
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+from skimage.transform import resize
 
 
 def initialize_parameters(layers_dims):
@@ -220,12 +222,15 @@ def L_layer_model(
 
     return parameters
 
-
 def accuracy(X, parameters, y, activation_fn="relu"):
     probs, caches = L_model_forward(X, parameters, activation_fn)
     labels = (probs >= 0.5) * 1
     accuracy = np.mean(labels == y) * 100
     return f"The accuracy rate is: {accuracy:.2f}%."
+
+def predict(data, parameters):
+    p, _ = L_model_forward(data, parameters, hidden_layers_activation_fn="relu")
+    print(p)
 
 if __name__ == "__main__":
     # Import training dataset
@@ -258,12 +263,14 @@ if __name__ == "__main__":
     # Setting layers dims
     layers_dims = [X_train.shape[0], 5, 5, 1]
     
+    '''
     print("Training NN with tanh() as activation function")
     # NN with tanh activation fn
     parameters_tanh = L_layer_model(X_train, y_train, layers_dims, learning_rate=0.03,
                                     num_iterations=3000, hidden_layers_activation_fn="tanh")
     # Print the accuracy
     accuracy(X_test, parameters_tanh, y_test, activation_fn="tanh")
+    '''
 
     print("Training NN with relu() as activation function")
     # NN with relu activation fn
@@ -271,5 +278,16 @@ if __name__ == "__main__":
                                     num_iterations=3000, hidden_layers_activation_fn="relu")
     # Print the accuracy
     accuracy(X_test, parameters_relu, y_test, activation_fn="relu")
+
+    # Test prediction on images
+    img = mpimg.imread('NeuralNet/data/cat/cat.2712.jpg')
+    img = resize(img, (64, 64), anti_aliasing=True)
+    img = img.reshape(1, -1).T
+    predict(img, parameters_relu)
+
+    img = mpimg.imread('NeuralNet/data/dog/dog.12490.jpg')
+    img = resize(img, (64, 64), anti_aliasing=True)
+    img = img.reshape(1, -1).T
+    predict(img, parameters_relu)
 
 
